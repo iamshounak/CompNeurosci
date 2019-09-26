@@ -1,6 +1,4 @@
-
 close all;
-%V=-100:10:100; %range has to be set properly
 foo=[4.4, 8.0, 2, 120, -84, -60, 0.02, -1.2, 18, 2, 30, 2, 30, 20];
 foocell=num2cell(foo);
 [ gca, gk, gl, vca, vk, vl, phi, V1, V2, V3, V4, V5, V6, C]=foocell{:};
@@ -32,18 +30,7 @@ jacob_matrix=jacobian([dvdt,dwdt],[V,W]);
 jacob_eqbm=subs(jacob_matrix, {V, W}, {VSol, WSol});
 eigenvalue=eig(jacob_eqbm)
 
-%%%%%%%%%%%%%%%%TRY 1 for quiver plot
-% Iext=93.85;
-% figure
-% [Vnew, Wnew] = meshgrid(-100:200/20:100, -0.2:0.7/20:0.5);
-% Vdot = -gca * m_inf(Vnew,V1,V2) * (Vnew-vca) ./ C - gk * Wnew * (Vnew-vk) ./C - gl * (Vnew-vl)./C +Iext./C; 
-% Wdot = phi * (w_inf(Vnew,V3,V4)- Wnew)./ tau_w(Vnew,V3,V4) ;
-% quiver(Vnew,Wnew,Vdot, Wdot) %problem with this??
 
-
-%%%%%%%%%%%%%%%%%TRY 2 for quiver plot
-
-%my_phase_2(83, 0.02, VSol, WSol) %No action potential
 iter=20;
 [V0, W0]=meshgrid(-70:((100+1)/iter ):30 , 0:(1/(iter-1) ):1);
 U=zeros(iter,iter);
@@ -175,105 +162,113 @@ ylabel("Firing rate / second");
 
 
 
-% %%%%%%%%%%PART 10
-% 
-% disp("START OF PART 10");
-% foo=[4, 8.0, 2, 120, -84, -60, 0.0667, -1.2, 18, 12, 17.4, 12, 17.4, 20];
-% foocell=num2cell(foo);
-% [ gca, gk, gl, vca, vk, vl, phi, V1, V2, V3, V4, V5, V6, C]=foocell{:};
-% 
-% Iext_part10=30;
-% dvdt=-gca * m_inf(V,V1,V2) * (V-vca) ./ C - gk * W * (V-vk) ./C - gl * (V-vl)./C +Iext_part10/C;
-% dwdt=phi * (w_inf(V,V3,V4)- W)/ tau_w(V,V3,V4);
-% syms V W 
-% eqns=[-gca * m_inf(V,V1,V2) * (V-vca) ./ C - gk * W * (V-vk) ./C - gl * (V-vl)./C +Iext_part10/C==0,phi * (w_inf(V,V3,V4)- W)/ tau_w(V,V3,V4)==0 ];
-% vars=[V W];
-% [VSol_part10,WSol_part10]=solve(eqns,vars); %Solve for equilibrium point%%%ONLY 1 found although there are 3
-% %fprintf("Equilibrium point of the system is at V = %f mV and w = %f",VSol_part10,WSol_part10);
-% 
-% figure %Plotting nullclines
-% nullclineV=@(V,W)dvdt;
-% fimplicit(dvdt, [-100 100 -0.2 0.5])
-% hold on
-% nullclineW=@(V,W)dwdt;
-% fimplicit(dwdt, [-100 100 -0.2 0.5], '-r')
-% hold on
-% title("Nullclines plotted for Morris-Lecar equations");
-% xlabel("V in milivolts");
-% ylabel("w");
-% hold on
-% jacob_matrix=jacobian([dvdt,dwdt],[V,W]);
-% V_part10_1= -41.85;  %Values manually found from graph for 3 eqbm points as only one solution obtained from solve function
-% V_part10_2= -19.56;
-% V_part10_3= 3.874;
-% W_part10_1= 0.002047;
-% W_part10_2= 0.02588;
-% W_part10_3= 0.2821;
-% 
-% jacob_eqbm=subs(jacob_matrix, {V, W}, {V_part10_1, W_part10_1});
-% eigenvalue=double(eig(jacob_eqbm)) %BOTH NEGATIVE AND REAL
-% my_phase_part10(30,0.0667,V_part10_1, W_part10_1); %FOUND TO BE STABLE NODE
-% 
-% jacob_eqbm=subs(jacob_matrix, {V, W}, {V_part10_2, W_part10_2});
-% eigenvalue=double(eig(jacob_eqbm)) %BOTH REAL, 1 +ve, 1 -ve
-% my_phase_part10(30,0.0667,V_part10_1, W_part10_2); %FOUND TO BE SADDLE POINT
-% 
-% jacob_eqbm=subs(jacob_matrix, {V, W}, {V_part10_3, W_part10_3});
-% eigenvalue=double(eig(jacob_eqbm))%BOTH COMPLEX CONJ with +ve real parts
-% my_phase_part10(30,0.0667,V_part10_1, W_part10_3); %FOUND TO BE UNSTABLE NODE
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% %%%%PART 11
-% for Iext_part10=30:2:50
-% foo=[4, 8.0, 2, 120, -84, -60, 0.0667, -1.2, 18, 12, 17.4, 12, 17.4, 20];
-% foocell=num2cell(foo);
-% [ gca, gk, gl, vca, vk, vl, phi, V1, V2, V3, V4, V5, V6, C]=foocell{:};
-% 
-% dvdt=-gca * m_inf(V,V1,V2) * (V-vca) ./ C - gk * W * (V-vk) ./C - gl * (V-vl)./C +Iext_part10/C;
-% dwdt=phi * (w_inf(V,V3,V4)- W)/ tau_w(V,V3,V4);
-% syms V W 
-% eqns=[-gca * m_inf(V,V1,V2) * (V-vca) ./ C - gk * W * (V-vk) ./C - gl * (V-vl)./C +Iext_part10/C==0,phi * (w_inf(V,V3,V4)- W)/ tau_w(V,V3,V4)==0 ];
-% vars=[V W];
-% [VSol_part10,WSol_part10]=solve(eqns,vars); %Solve for equilibrium point%%%ONLY 1 found although there are 3
-% %fprintf("Equilibrium point of the system is at V = %f mV and w = %f",VSol_part10,WSol_part10);
-% 
-% figure %Plotting nullclines
-% nullclineV=@(V,W)dvdt;
-% fimplicit(dvdt, [-100 100 -0.2 0.5])
-% hold on
-% nullclineW=@(V,W)dwdt;
-% fimplicit(dwdt, [-100 100 -0.2 0.5], '-r')
-% hold on
-% title("Nullclines plotted for Morris-Lecar equations");
-% xlabel("V in milivolts");
-% ylabel("w");
-% hold on
-% jacob_matrix=jacobian([dvdt,dwdt],[V,W]);
-% jacob_eqbm=subs(jacob_matrix, {V, W}, {VSol_part10,WSol_part10});
-% eigenvalue=double(eig(jacob_eqbm)); %BOTH NEGATIVE AND REAL
-% %my_phase_part10(30,0.0667,VSol_part10,WSol_part10);
-% end
-% %%%%%
-% %%IN THIS PART, on changing Iext, number of equilibrium points changed from
-% %%3 to 2(tangential) to 1
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% %%%%%PART 12
+%%%%%%%%%%PART 10
 
+disp("START OF PART 10");
+foo=[4, 8.0, 2, 120, -84, -60, 0.0667, -1.2, 18, 12, 17.4, 12, 17.4, 20];
+foocell=num2cell(foo);
+[ gca, gk, gl, vca, vk, vl, phi, V1, V2, V3, V4, V5, V6, C]=foocell{:};
+
+syms V W
+Iext_part10=30;
+dvdt=-gca * m_inf(V,V1,V2) * (V-vca) ./ C - gk * W * (V-vk) ./C - gl * (V-vl)./C +Iext_part10./C;
+dwdt=phi * (w_inf(V,V3,V4)- W)/ tau_w(V,V3,V4);
+eqns=[-gca * m_inf(V,V1,V2) * (V-vca) ./ C - gk * W * (V-vk) ./C - gl * (V-vl)./C +Iext_part10./C==0,phi * (w_inf(V,V3,V4)- W)/ tau_w(V,V3,V4)==0 ];
+vars=[V W];
+[VSol_part10,WSol_part10]=solve(eqns,vars); %Solve for equilibrium point%%%ONLY 1 found although there are 3
+%fprintf("Equilibrium point of the system is at V = %f mV and w = %f",VSol_part10,WSol_part10);
+
+figure %Plotting nullclines
+nullclineV=@(V,W)dvdt;
+fimplicit(dvdt, [-100 100 -0.2 1])
+hold on
+nullclineW=@(V,W)dwdt;
+fimplicit(dwdt, [-100 100 -0.2 1], '-r')
+hold on
+
+hold on
+
+jacob_matrix=jacobian([dvdt,dwdt],[V,W]);
+V_part10_1= -41.85;  %Values manually found from graph for 3 eqbm points as only one solution obtained from solve function
+V_part10_2= -19.56;
+V_part10_3= 3.874;
+W_part10_1= 0.002047;
+W_part10_2= 0.02588;
+W_part10_3= 0.2821;
+
+
+jacob_eqbm=subs(jacob_matrix, {V, W}, {V_part10_1, W_part10_1});
+eigenvalue=double(eig(jacob_eqbm)) %BOTH NEGATIVE AND REAL
+
+jacob_eqbm=subs(jacob_matrix, {V, W}, {V_part10_2, W_part10_2});
+eigenvalue=double(eig(jacob_eqbm)) %BOTH REAL, 1 +ve, 1 -ve
+
+jacob_eqbm=subs(jacob_matrix, {V, W}, {V_part10_3, W_part10_3});
+eigenvalue=double(eig(jacob_eqbm))%BOTH COMPLEX CONJ with +ve real parts
+
+%%%Manifolds plotted about saddle point
+manifolds(30,0.02,V_part10_2-0.001,W_part10_2-0.001,0,1000,'y');
+hold off
+
+title("Nullclines and manifolds plotted for Morris-Lecar equations");
+xlabel("V in milivolts");
+ylabel("w");
+legend('V-nullcline','W-nullcline','Manifold about saddle point');
+
+
+
+%%%%PART 11
+I_p11=[30,39,39.5,40,45,50];
+figure
+for i=1:6
+Iext_part10=I_p11(i);
+foo=[4, 8.0, 2, 120, -84, -60, 0.0667, -1.2, 18, 12, 17.4, 12, 17.4, 20];
+foocell=num2cell(foo);
+[ gca, gk, gl, vca, vk, vl, phi, V1, V2, V3, V4, V5, V6, C]=foocell{:};
+syms V W
+dvdt=-gca * m_inf(V,V1,V2) * (V-vca) ./ C - gk * W * (V-vk) ./C - gl * (V-vl)./C +Iext_part10/C;
+dwdt=phi * (w_inf(V,V3,V4)- W)/ tau_w(V,V3,V4);
+ 
+eqns=[-gca * m_inf(V,V1,V2) * (V-vca) ./ C - gk * W * (V-vk) ./C - gl * (V-vl)./C +Iext_part10/C==0,phi * (w_inf(V,V3,V4)- W)/ tau_w(V,V3,V4)==0 ];
+vars=[V W];
+[VSol_part10,WSol_part10]=solve(eqns,vars); 
+nullclineV=@(V,W)dvdt;
+fimplicit(dvdt, [-100 100 -0.2 0.5])
+hold on
+if(i==1)
+    nullclineW=@(V,W)dwdt;
+    fimplicit(dwdt, [-100 100 -0.2 0.5], '-r')
+    hold on
+end
+title("Nullclines plotted for Morris-Lecar equations (PART 11)");
+xlabel("V in milivolts");
+ylabel("w");
+legend('V-nullcline(Iext=30mA)','W-nullcline','V-nullcline(Iext=39mA)','V-nullcline(Iext=39.5mA)','V-nullcline(Iext=40mA)','V-nullcline(Iext=45mA)','V-nullcline(Iext=50mA)');
+
+hold on
+jacob_matrix=jacobian([dvdt,dwdt],[V,W]);
+jacob_eqbm=subs(jacob_matrix, {V, W}, {VSol_part10,WSol_part10});
+eigenvalue=double(eig(jacob_eqbm)); %BOTH NEGATIVE AND REAL
+end
+
+
+
+function manifolds(Iext,phi, VSol, WSol, t_start,t_end,clr)
+[~,X] = ode15s(@EOM,[t_start t_end],[double(VSol); double(WSol)]);
+Vnew = X(:,1);
+Wnew = X(:,2);
+plot(Vnew,Wnew,clr)
+    function dX = EOM(t,y) %Nested function to ensure value of Iext is passed
+    Vnew  = y(1);
+    Wnew  = y(2);
+    foo=[4.4, 8.0, 2, 120, -84, -60, -1.2, 18, 2, 30, 2, 30, 20]; %phi taken as parameter of function separately
+    foocell=num2cell(foo);
+    [ gca, gk, gl, vca, vk, vl, V1, V2, V3, V4, V5, V6, C]=foocell{:};
+    dvdt_I=-1.*gca .* m_inf(Vnew,V1,V2) .* (Vnew-vca) ./ C - gk .* Wnew .* (Vnew-vk) ./C - gl .* (Vnew-vl)./C +Iext ./C;
+    dwdt_I=phi .* (w_inf(Vnew,V3,V4)- Wnew)./ tau_w(Vnew,V3,V4);
+    dX = [dvdt_I; dwdt_I];
+    end
+end
 
 function my_phase(Iext,phi, VSol, WSol)
 %[~,X] = ode45(@EOM,[-500 500],[-0.2 1]);
