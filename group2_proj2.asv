@@ -135,28 +135,10 @@ eigenvalue_new2=eig(jacob_eqbm_new2)
 
 %%%PART9
 
-Iext_pt9_1=[80 86 90];
-for i=1:3
-Iext_new3=Iext_pt9_1(i);
-syms V_new3 W_new3 
-dvdt_new3= -gca * m_inf(V_new3,V1,V2) * (V_new3-vca) ./ C - gk * W_new3 * (V_new3-vk) ./C - gl * (V_new3-vl)./C + Iext_new3/C;  
-dwdt_new3= phi * (w_inf(V_new3,V3,V4)- W_new3)/ tau_w(V_new3,V3,V4) ;
-
-sol = solve([dvdt_new3, dwdt_new3], [V_new3, W_new3]); %Solve for equilibrium point
-VSol_new3 = sol.V_new3;
-WSol_new3 = sol.W_new3;
-fprintf("Equilibrium point of the system for Iext=%f is at V = %f mV and w = %f",Iext_new3,VSol_new3,WSol_new3);
-jacob_matrix_new3=jacobian([dvdt_new3,dwdt_new3],[V_new3,W_new3]);
-jacob_eqbm_new3=subs(jacob_matrix_new3, {V_new3, W_new3}, {VSol_new3, WSol_new3});
-eigenvalue_new3=eig(jacob_eqbm_new3) %%On printing this, eigenvalue changes sign after sometime (although complex)
-end
-
-
-
-firing=zeros(31);
-
-Iext_pt9=80:1:110;
-for i=1:31
+%%%%%%%%PART 9
+firing=zeros(30);
+Iext_pt9=80:1:109;
+for i=1:30
 Iext_new3=Iext_pt9(i);
 syms V_new3 W_new3 
 dvdt_new3= -gca * m_inf(V_new3,V1,V2) * (V_new3-vca) ./ C - gk * W_new3 * (V_new3-vk) ./C - gl * (V_new3-vl)./C + Iext_new3/C;  
@@ -165,16 +147,27 @@ dwdt_new3= phi * (w_inf(V_new3,V3,V4)- W_new3)/ tau_w(V_new3,V3,V4) ;
 sol = solve([dvdt_new3, dwdt_new3], [V_new3, W_new3]); %Solve for equilibrium point
 VSol_new3 = sol.V_new3;
 WSol_new3 = sol.W_new3;
-firing(i)=my_phase_firing(Iext_new3,0.02,VSol_new3,WSol_new3); %THIS returns number of spikes based on sign changes in V-t plot
+%fprintf("Equilibrium point of the system for Iext=%f is at V = %f mV and w = %f",Iext_new3,VSol_new3,WSol_new3);
+
+firing(i)=my_phase_firing(Iext_new3,0.02,VSol_new3,WSol_new3); %UNCOMMENT FOR PLOTTING
+
+%jacob_matrix_new3=jacobian([dvdt_new3,dwdt_new3],[V_new3,W_new3]);
+%jacob_eqbm_new3=subs(jacob_matrix_new3, {V_new3, W_new3}, {VSol_new3, WSol_new3});
+%eigenvalue_new3=eig(jacob_eqbm_new3); %%On printing this, eigenvalue changes sign after sometime (although complex)
 end
 figure
 plot(Iext_pt9,firing);
 title("Firing rate vs Iext");
 xlabel("Iext");
-ylabel("Firing rate / second");
-
-
-
+ylabel("Firing rate");
+%Action potential observed only when Iext=98 and 100 (rate is 1 and 2 per
+%second)
+% 
+% 
+% 
+% 
+% 
+% 
 % %%%%%%%%%%PART 10
 % 
 % disp("START OF PART 10");
