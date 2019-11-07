@@ -536,9 +536,6 @@ end
 %is obtained for certain number of parameters removed
 
 
-%FOR PART 7, Do part B as it is independent of the previous questions 
-
-
 %% SIGMOID FUNCTION FOR CURVE FITTING
 %%THIS FUNCTION IS DOWNLOADED FROM MATHWORKS WEBSITE FOR SIGMOID CURVE
 %%FITTING
@@ -682,4 +679,121 @@ if plot_flag==1
     plot(x,y,'k.',x_vector,f(param(isnan(fixed_params)),x_vector),'r-')
     xlim([min(x) max(x)])
 end
+
+
+%% PART 7
+figure()
+for neuron_cnt=1:4
+    num_trial=10;
+    MI=zeros(num_trial,7);
+    for vp_trial=1:num_trial
+        q=[0, 0.001, 0.01, 0.1, 1, 10, 100];
+        rng(vp_trial);
+        start_pt=rand(1,8);
+        start_pt=start_pt*15;
+        end_pt=start_pt+0.1;
+
+
+        for trial_no = 1:50
+            for stpt=1:8
+                temp1=[];
+                temp1=All_Spike_Times{neuron_cnt,trial_no}>start_pt(stpt);
+                spktemp1=All_Spike_Times{neuron_cnt,trial_no}(temp1);
+                temp2=[];
+                temp2=All_Spike_Times{neuron_cnt,trial_no}<=start_pt(stpt)+0.1;
+                spktemp2=All_Spike_Times{neuron_cnt,trial_no}(temp2);
+                vpmat{stpt,trial_no}=intersect(spktemp1,spktemp2);
+            end
+        end
+
+        confusion=zeros(7,8,8);
+
+        for qno=1:7
+            vpmindist=zeros(8,50);
+            vpmindist=inf+vpmindist;
+            for m=1:50
+                for n=1:8
+                    minj=[];
+                    for i = 1:50
+                        for j = 1:8
+                            if ~(m==i && n==j)
+                                if(spkd(vpmat{j,i},vpmat{n,m},q(qno))<=vpmindist(n,m))
+                                    vpmindist(n,m)=spkd(vpmat{j,i},vpmat{n,m},q(qno));
+                                    if(spkd(vpmat{j,i},vpmat{n,m},q(qno))==vpmindist(n,m))
+                                        minj=[minj,j];
+                                    else
+                                        minj=[j];
+                                    end
+
+                                end
+            %                     vpdist(n,m)=min(a,vpdist(m,n));
+                            end
+                        end
+                    end
+                    for it=1:length(minj)
+                        confusion(qno,n,minj(it))=confusion(qno,n,minj(it))+1/length(minj);
+                    end
+                end
+            end
+
+
+
+        end
+        confusion=confusion/400;
+        for qno=1:7
+            for x = 1:8
+                    for y=  1:8
+                        MI(vp_trial,qno)=MI(vp_trial,qno)+confusion(qno,x,y)*log2(confusion(qno,x,y)/(sum(confusion(qno,x,:))*sum(confusion(qno,:,y))));
+                    end
+            end
+        end
+    end
+    MIavg=sum(MI(:,:));
+    MIavg=MIavg/num_trial;
+    subplot(2,2,neuron_cnt)
+    plot(linspace(-3,2,6),MIavg(2:7));
+    title(strcat('neuron ',int2str(neuron_cnt),' MI vs q'))
+    xlabel('q')
+    ylabel('MI')
+
+end
+
+        
+function d=spkd(tli,tlj,cost)
+%
+% d=spkd(tli,tlj,cost) calculates the "spike time" distance
+% (Victor & Purpura 1996) for a single cost
+%
+% tli: vector of spike times for first spike train
+% tlj: vector of spike times for second spike train
+% cost: cost per unit time to move a spike
+%
+%  Copyright (c) 1999 by Daniel Reich and Jonathan Victor.
+%  Translated to Matlab by Daniel Reich from FORTRAN code by Jonathan Victor.
+%
+nspi=length(tli);
+nspj=length(tlj);
+
+if cost==0
+   d=abs(nspi-nspj);
+   return
+elseif cost==Inf
+   d=nspi+nspj;
+   return
+end
+
+scr=zeros(nspi+1,nspj+1);
+%
+%     INITIALIZE MARGINS WITH COST OF ADDING A SPIKE
+%
+scr(:,1)=(0:nspi)';
+scr(1,:)=(0:nspj);
+if nspi & nspj
+   for i=2:nspi+1
+      for j=2:nspj+1
+         scr(i,j)=min([scr(i-1,j)+1 scr(i,j-1)+1 scr(i-1,j-1)+cost*abs(tli(i-1)-tlj(j-1))]);
+      end
+   end
+end
+d=scr(nspi+1,nspj+1);
 end
